@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مشاور هوش مصنوعی - حکمت سنتی</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .chat-container {
+            width: 100%;
+            height: 100vh;
+            background: #ecf0f1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-header {
+            background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        }
+        
+        .chat-header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .chat-header .status {
+            font-size: 14px;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: linear-gradient(180deg, #ecf0f1 0%, #dfe6e9 100%);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+            animation: fadeIn 0.4s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .user-message {
+            justify-content: flex-end;
+        }
+        
+        .bot-message {
+            justify-content: flex-start;
+        }
+        
+        .message-bubble {
+            max-width: 75%;
+            padding: 15px 20px;
+            border-radius: 20px;
+            font-size: 15px;
+            line-height: 1.6;
+            word-wrap: break-word;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .user-message .message-bubble {
+            background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+        
+        .bot-message .message-bubble {
+            background: white;
+            color: #2c3e50;
+            border: 1px solid #bdc3c7;
+            border-bottom-left-radius: 5px;
+            border-left: 4px solid #e67e22;
+        }
+        
+        .typing-indicator {
+            display: none;
+            padding: 12px 18px;
+            background: white;
+            border-radius: 20px;
+            border-bottom-left-radius: 5px;
+            margin-bottom: 15px;
+            align-items: center;
+            max-width: 90px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid #e67e22;
+        }
+        
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #e67e22;
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+        
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+        
+        .chat-input-container {
+            padding: 20px;
+            background: white;
+            border-top: 2px solid #bdc3c7;
+            display: flex;
+            gap: 12px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .chat-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #bdc3c7;
+            border-radius: 25px;
+            outline: none;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+        
+        .chat-input:focus {
+            border-color: #e67e22;
+            box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.1);
+            background: white;
+        }
+        
+        .send-button {
+            background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            min-width: 80px;
+            box-shadow: 0 4px 12px rgba(230, 126, 34, 0.3);
+        }
+        
+        .send-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(230, 126, 34, 0.4);
+        }
+        
+        .send-button:active {
+            transform: translateY(0);
+        }
+
+        /* استایل اسکرول بار */
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .chat-messages::-webkit-scrollbar-track {
+            background: #dfe6e9;
+            border-radius: 3px;
+        }
+        
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #e67e22;
+            border-radius: 3px;
+        }
+        
+        .chat-messages::-webkit-scrollbar-thumb:hover {
+            background: #d35400;
+        }
+
+        /* موبایل ریسپانسیو */
+        @media (max-width: 768px) {
+            .chat-container {
+                height: 100vh;
+            }
+            
+            .message-bubble {
+                max-width: 85%;
+                padding: 12px 16px;
+                font-size: 14px;
+            }
+            
+            .chat-header {
+                padding: 15px;
+            }
+            
+            .chat-header h1 {
+                font-size: 20px;
+            }
+            
+            .chat-input-container {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h1>🧠 مشاور حکمت سنتی</h1>
+            <div class="status">آنلاین - آماده ارائه راهنمایی‌های کاربردی</div>
+        </div>
+        
+        <div class="chat-messages" id="chatMessages">
+            <!-- صفحه کاملاً خالی -->
+        </div>
+        
+        <div class="typing-indicator" id="typingIndicator">
+            <div class="typing-dots">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+        </div>
+        
+        <div class="chat-input-container">
+            <input type="text" class="chat-input" id="chatInput" 
+                   placeholder="سوال یا مشکل خود را اینجا بنویسید..." 
+                   onkeypress="handleKeyPress(event)">
+            <button class="send-button" onclick="sendMessage()">ارسال</button>
+        </div>
+    </div>
+
+    <script>
+        // 📁 مسیر فایل‌های m1.txt تا m50.txt
+        const textFiles = [];
+        for (let i = 1; i <= 50; i++) {
+            textFiles.push(`./m${i}.txt`);
+        }
+
+        let knowledgeBase = {};
+        let isTyping = false;
+        let filesLoaded = false;
+
+        // 📖 لود کردن همه فایل‌ها
+        async function loadTextFiles() {
+            const loadedKnowledge = {};
+            let loadedCount = 0;
+            
+            const loadPromises = textFiles.map(async (filePath) => {
+                try {
+                    const response = await fetch(filePath);
+                    if (response.ok) {
+                        const text = await response.text();
+                        processTextFile(text, loadedKnowledge);
+                        loadedCount++;
+                    }
+                } catch (error) {
+                    console.log(`فایل ${filePath} لود نشد`);
+                }
+            });
+            
+            await Promise.all(loadPromises);
+            knowledgeBase = loadedKnowledge;
+            filesLoaded = true;
+            console.log(`✅ ${loadedCount} فایل از 50 فایل لود شد`);
+        }
+
+        // 🔧 پردازش فایل متنی
+        function processTextFile(text, knowledge) {
+            const lines = text.split('\n').filter(line => line.trim());
+            
+            for (const line of lines) {
+                const parts = line.split('|');
+                if (parts.length >= 2) {
+                    const keyword = parts[0].trim();
+                    const response = parts[1].trim();
+                    
+                    if (keyword && response) {
+                        if (!knowledge[keyword]) {
+                            knowledge[keyword] = [];
+                        }
+                        knowledge[keyword].push(response);
+                    }
+                }
+            }
+        }
+
+        // 🔍 سیستم جستجوی پیشرفته
+        function findBestResponse(userMessage) {
+            if (!filesLoaded) {
+                return "🔄 در حال بارگذاری دانش... لطفاً چند لحظه صبر کنید";
+            }
+
+            if (Object.keys(knowledgeBase).length === 0) {
+                return "❌ هیچ فایل دانشی یافت نشد. لطفاً از وجود فایل‌های m1.txt تا m50.txt اطمینان حاصل کنید";
+            }
+
+            const message = userMessage.toLowerCase().trim();
+            
+            // 1. جستجوی دقیق
+            for (const keyword in knowledgeBase) {
+                if (message === keyword.toLowerCase()) {
+                    const responses = knowledgeBase[keyword];
+                    return responses[Math.floor(Math.random() * responses.length)];
+                }
+            }
+            
+            // 2. جستجوی شامل
+            for (const keyword in knowledgeBase) {
+                if (message.includes(keyword.toLowerCase())) {
+                    const responses = knowledgeBase[keyword];
+                    return responses[Math.floor(Math.random() * responses.length)];
+                }
+            }
+            
+            // 3. جستجوی کلمات کلیدی
+            const words = message.split(' ').filter(word => word.length > 2);
+            let bestMatch = null;
+            let bestMatchLength = 0;
+            
+            for (const word of words) {
+                for (const keyword in knowledgeBase) {
+                    if (keyword.toLowerCase().includes(word)) {
+                        const responses = knowledgeBase[keyword];
+                        // انتخاب بهترین match بر اساس طول کلمه
+                        if (word.length > bestMatchLength) {
+                            bestMatch = responses;
+                            bestMatchLength = word.length;
+                        }
+                    }
+                }
+            }
+            
+            if (bestMatch) {
+                return bestMatch[Math.floor(Math.random() * bestMatch.length)];
+            }
+            
+            // 4. اگر هیچ چیزی پیدا نشد
+            return "🤔 متأسفانه پاسخی برای این سوال در دانش من وجود ندارد. لطفاً سوال خود را به صورت دیگری بیان کنید یا موضوع دیگری را جویا شوید.";
+        }
+
+        // 💬 افزودن پیام با تایپ کردن progressive
+        function addMessage(message, isUser = false) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+            
+            const bubble = document.createElement('div');
+            bubble.className = 'message-bubble';
+            
+            if (isUser) {
+                bubble.textContent = message;
+                messageDiv.appendChild(bubble);
+                chatMessages.appendChild(messageDiv);
+            } else {
+                messageDiv.appendChild(bubble);
+                chatMessages.appendChild(messageDiv);
+                typeText(bubble, message);
+            }
+            
+            // اسکرول به پایین
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // ⌨️ تایپ کردن متن (مثل من)
+        function typeText(element, text, speed = 25) {
+            if (isTyping) return;
+            isTyping = true;
+            
+            let i = 0;
+            element.textContent = '';
+            
+            function typeChar() {
+                if (i < text.length) {
+                    element.textContent += text.charAt(i);
+                    i++;
+                    
+                    // اسکرول به پایین در حین تایپ
+                    const chatMessages = document.getElementById('chatMessages');
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                    
+                    // سرعت تصادفی برای طبیعی‌تر شدن
+                    const randomSpeed = speed + Math.random() * 15;
+                    setTimeout(typeChar, randomSpeed);
+                } else {
+                    isTyping = false;
+                }
+            }
+            
+            typeChar();
+        }
+
+        // 📤 ارسال پیام
+        function sendMessage() {
+            const chatInput = document.getElementById('chatInput');
+            const message = chatInput.value.trim();
+            
+            if (message === '') return;
+            
+            // نمایش پیام کاربر
+            addMessage(message, true);
+            chatInput.value = '';
+            
+            // مخفی کردن تایپینگ قبلی
+            const typingIndicator = document.getElementById('typingIndicator');
+            typingIndicator.style.display = 'none';
+            
+            // تاخیر برای پردازش
+            setTimeout(() => {
+                const response = findBestResponse(message);
+                
+                // نمایش تایپینگ
+                typingIndicator.style.display = 'flex';
+                
+                // تاخیر قبل از شروع تایپ (بر اساس طول پاسخ)
+                const typingDelay = 600 + (response.length * 2) + Math.random() * 400;
+                
+                setTimeout(() => {
+                    typingIndicator.style.display = 'none';
+                    addMessage(response);
+                }, typingDelay);
+                
+            }, 400 + Math.random() * 300);
+        }
+
+        // 🔘 مدیریت دکمه Enter
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // 🚀 راه‌اندازی سیستم
+        document.addEventListener('DOMContentLoaded', function() {
+            // لود فایل‌های دانش
+            loadTextFiles();
+            
+            // فوکوس روی اینپوت
+            const chatInput = document.getElementById('chatInput');
+            chatInput.focus();
+            
+            // صفحه کاملاً خالی - هیچ پیام خوشامدگویی نمایش داده نمی‌شود
+        });
+
+    </script>
+</body>
+              </html>
